@@ -1,0 +1,54 @@
+class Solution {
+public:
+    int numberOfStableArrays(int z, int o, int limit) {
+
+        const int MOD = 1000000007;
+
+        vector<vector<vector<int>>> dp(
+            z + 1, vector<vector<int>>(o + 1, vector<int>(2, -1))
+        );
+
+        function<int(int,int,int)> solve = [&](int zeros, int ones, int last) {
+
+            if (zeros == 0) {
+                if (last == 0 || ones > limit) return 0;
+                return 1;
+            }
+
+            if (ones == 0) {
+                if (last == 1 || zeros > limit) return 0;
+                return 1;
+            }
+
+            if (dp[zeros][ones][last] != -1)
+                return dp[zeros][ones][last];
+
+            long long ways = 0;
+
+            if (last == 0) {
+
+                ways = (solve(zeros - 1, ones, 0) +
+                        solve(zeros - 1, ones, 1)) % MOD;
+
+                if (zeros > limit) {
+                    ways = (ways -
+                            solve(zeros - limit - 1, ones, 1) + MOD) % MOD;
+                }
+
+            } else {
+
+                ways = (solve(zeros, ones - 1, 0) +
+                        solve(zeros, ones - 1, 1)) % MOD;
+
+                if (ones > limit) {
+                    ways = (ways -
+                            solve(zeros, ones - limit - 1, 0) + MOD) % MOD;
+                }
+            }
+
+            return dp[zeros][ones][last] = ways;
+        };
+
+        return (solve(z, o, 0) + solve(z, o, 1)) % MOD;
+    }
+};
